@@ -10,11 +10,12 @@ uint8_t FLAG;
 
 void load_RAM( FILE* code );
 void start_processor();
+void print();
 
 int main(int argc, char *argv[]){
     if(argc < 2){
         printf("Usage: %s <File Name>\n", argv[0]);
-        return 1;   
+                return 1;   
     }
     FILE *code;
     
@@ -39,9 +40,10 @@ void load_RAM( FILE* code ){
     char hex[3];
     for(int i = 0; fscanf(code, "%2s", hex) == 1; i++){ 
         int value = (int)strtol(hex, NULL, 16);
-        printf("%X\n", value);
+        printf("%X ", value);
         RAM[i] = value;
     }
+    printf("\n");
 }
 
 void start_processor(){
@@ -51,13 +53,21 @@ void start_processor(){
     FLAG = 0;
     uint8_t addr;
     while(PC < 255 ){
-        printf("ACC: %X, IR: %X, PC: %X, FLAG: %X\n", ACC, IR, PC, FLAG);
+        print();
         IR = RAM[PC++];
-        printf("ACC: %X, IR: %X, PC: %X, FLAG: %X\n", ACC, IR, PC, FLAG);
+        print();
         switch(IR){
             case 0x00:
                 addr = RAM[PC++];
                 ACC = RAM[addr];
+                break;
+            case 0x10:
+                addr = RAM[PC++];
+                RAM[addr] = ACC;
+                break;
+            case 0x40:
+                addr = RAM[PC++];
+                ACC += RAM[addr];
                 break;
             case 0x90:
                 addr = RAM[PC++];
@@ -69,4 +79,16 @@ void start_processor(){
         getchar();
     }
     
+}
+
+
+void print(){
+    printf("ACC: %X, IR: %X, PC: %X, FLAG: %X\n", ACC, IR, PC, FLAG);
+    for(int i = 0; i < 256; i++){
+        if (i % 16 == 0 && i > 1){
+            printf("\n");
+        }
+        printf("%02X ", RAM[i]);
+    }
+    printf("\n\n");
 }
