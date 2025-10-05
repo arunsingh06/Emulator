@@ -1,0 +1,3 @@
+LD     A
+Fine: JMP Fine
+A:      7h
